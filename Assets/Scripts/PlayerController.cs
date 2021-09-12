@@ -21,12 +21,13 @@ public class PlayerController : MonoBehaviour
   public LayerMask whatIsGround;
   public Transform groundCheck;
   public float groundRadius = 0.0025f;
-  public Transform hitBox;
+  public BoxCollider2D hitBox;
 
   private Rigidbody2D rb;
   private BoxCollider2D col;
   private float horzInput;
   private Vector2 direction;
+  private Vector3 mouseDirection;
 
   // Start is called before the first frame update
   void Start()
@@ -39,6 +40,7 @@ public class PlayerController : MonoBehaviour
   {
     horzInput = Input.GetAxis("Horizontal");
     jumpHeld = Input.GetButton("Jump");
+    GetMouseLocation();
 
     direction = new Vector2(horzInput, rb.velocity.y);
 
@@ -78,7 +80,6 @@ public class PlayerController : MonoBehaviour
         fallThrough = false;
       }
     }
-
     RefreshJumps();
   }
 
@@ -86,11 +87,6 @@ public class PlayerController : MonoBehaviour
   private void FixedUpdate()
   {
     CheckIfGrounded();
-
-    Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    Vector3 mouseDirection = gameObject.transform.position - mousePos;
-    mouseDirection.z = 0.0f;
-    mouseDirection = mouseDirection.normalized;
 
     PlayerMovement();
 
@@ -117,6 +113,8 @@ public class PlayerController : MonoBehaviour
           // push the player away from the direction of the mouse
           rb.AddForce(mouseDirection * airJumpForce , ForceMode2D.Impulse);
           jumpPressed = false;
+          Attack();
+          Invoke("Attack", .05f);
         }
       }
     }
@@ -137,7 +135,7 @@ public class PlayerController : MonoBehaviour
     if (collision.gameObject.CompareTag("Fall Through") && fallThrough)
     {
       FallThroughPlatform();
-      Invoke("FallThroughPlatform", .5f);
+      Invoke("FallThroughPlatform", .25f);
     }
   }
 
@@ -148,7 +146,8 @@ public class PlayerController : MonoBehaviour
     {
       if (extraJump && jumpCount < MAX_JUMP_COUNT)
       {
-        rb.AddForce(new Vector2(direction.x * speed * Time.fixedDeltaTime, 0), ForceMode2D.Force);
+        Vector2 currentVel = rb.velocity;
+        rb.AddForce(new Vector2(direction.x * speed * Time.fixedDeltaTime, 0) - currentVel, ForceMode2D.Force);
       }
       else
       {
@@ -161,6 +160,14 @@ public class PlayerController : MonoBehaviour
     {
       rb.velocity = new Vector2(0, rb.velocity.y);
     }
+  }
+
+  private void GetMouseLocation()
+  {
+    Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    mouseDirection = gameObject.transform.position - mousePos;
+    mouseDirection.z = 0.0f;
+    mouseDirection = mouseDirection.normalized;
   }
 
   private void CheckIfGrounded()
@@ -192,5 +199,10 @@ public class PlayerController : MonoBehaviour
   private void FallThroughPlatform()
   {
     col.enabled = !col.enabled;
+  }
+
+  private void Attack()
+  {
+    hitBox.enabled = !hitBox.enabled;
   }
 }
