@@ -1,11 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
   private const int MAX_JUMP_COUNT = 3;
+  private const int MAX_HEALTH = 3;
 
+  public bool isInvulnerable = false;
+  public float invulnerabilityTimeInSeconds = .5f;
+  public bool isCoroutineRunning = false;
+
+  public AudioClip jumpClip;
+  public AudioSource audioSource;
+
+  public Image[] hearts;
+
+  public int currentHealth = 0;
+  public bool isAlive = true;
   public float speed = 10.0f;
   public float jumpForce = 10.0f;
   public float airJumpForce = 15.0f;
@@ -28,12 +41,15 @@ public class PlayerController : MonoBehaviour
   private float horzInput;
   private Vector2 direction;
   private Vector3 mouseDirection;
+  private SpriteRenderer sprite;
 
   // Start is called before the first frame update
   void Start()
   {
     rb = GetComponent<Rigidbody2D>();
     col = GetComponent<BoxCollider2D>();
+    sprite = GetComponent<SpriteRenderer>();
+    currentHealth = MAX_HEALTH;
   }
 
   private void Update()
@@ -49,10 +65,11 @@ public class PlayerController : MonoBehaviour
     {
       if (isGrounded)
       {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
         {
           jumpPressed = true;
           extraJump = true;
+          audioSource.PlayOneShot(jumpClip);
         }
       } else
       {
@@ -67,6 +84,7 @@ public class PlayerController : MonoBehaviour
           } else
           {
             jumpPressed = true;
+            audioSource.PlayOneShot(jumpClip);
           }
         }
       }
@@ -204,5 +222,49 @@ public class PlayerController : MonoBehaviour
   private void Attack()
   {
     hitBox.enabled = !hitBox.enabled;
+  }
+
+  public void PlayerTakeDamage()
+  {
+    if (!isInvulnerable && currentHealth > 0)
+    {
+      currentHealth--;
+      hearts[currentHealth].enabled = false;
+    }
+    
+    Debug.Log("currentHealth: " + currentHealth);
+    if(currentHealth <= 0)
+    {
+      currentHealth = 0;
+      isAlive = false;
+      return;
+    }
+
+    if(!isCoroutineRunning)
+    {
+      StartCoroutine(PlayerInvulnerableAfterDamage());
+    }
+  }
+
+  private IEnumerator PlayerInvulnerableAfterDamage()
+  {
+    isInvulnerable = true;
+    isCoroutineRunning = true;
+
+    for (float i = 0; i < invulnerabilityTimeInSeconds; i += .1f)
+    {
+      if (sprite.color == Color.white)
+      {
+        sprite.color = Color.red;
+      } else
+      {
+        sprite.color = Color.white;
+      }
+      yield return new WaitForSeconds(invulnerabilityTimeInSeconds);
+    }
+
+    sprite.color = Color.white;
+    isInvulnerable = false;
+    isCoroutineRunning = false;
   }
 }
