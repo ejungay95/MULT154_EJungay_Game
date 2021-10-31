@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -16,8 +17,12 @@ public class SpawnManager : MonoBehaviour
     public List<GameObject> enemies = new List<GameObject>();
   }
 
+  public LayerMask checkForPlayer;
+  public float checkRadius = 1f;
+
   public Wave[] waves;
   public int waveIndex = 0;
+  public int level = 1;
 
   public float timeBetweenWaves = 5f;
   public float waveCountdown;
@@ -78,9 +83,13 @@ public class SpawnManager : MonoBehaviour
   void SpawnEnemy(Wave wave)
   {
     GameObject enemyType = wave.enemyTypes[Random.Range(0, wave.enemyTypes.Length)];
-
+    GameObject temp;
     Transform spawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
-    GameObject temp = Instantiate(enemyType, spawn.position, Quaternion.identity);
+    while (Physics2D.OverlapCircle(spawn.position, checkRadius, checkForPlayer) != null)
+    {
+      spawn = spawnPoints[Random.Range(0, spawnPoints.Length)];
+    }
+    temp = Instantiate(enemyType, spawn.position, Quaternion.identity);
     wave.enemies.Add(temp);
   }
 
@@ -101,7 +110,6 @@ public class SpawnManager : MonoBehaviour
 
   void WaveCompleted()
   {
-    Debug.Log("Wave Completed");
     currentState = SpawnState.COUNTING; 
     
     waveCountdown = timeBetweenWaves;

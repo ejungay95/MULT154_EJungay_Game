@@ -10,7 +10,10 @@ public class EnemyAI : MonoBehaviour
   public GameObject leftCheck;
   public GameObject rightCheck;
   public GameObject enemyGFX;
+  public GameObject projectilePrefab;
+  public Animator anim;
   public float speed = 200f;
+  public LayerMask layers;
 
   float speedTemp;
 
@@ -25,6 +28,10 @@ public class EnemyAI : MonoBehaviour
 
   [Header("Attack modifiers")]
   public float attackRange = 3.5f;
+  public float fireRate = 1.0f;
+
+  private float fireTimer = 0f;
+  private bool canFire = true;
 
   [Header("Jump modifiers")]
   public float jumpHeightLimit = 0.8f;
@@ -55,6 +62,8 @@ public class EnemyAI : MonoBehaviour
   
   private Seeker seeker;
   private Rigidbody2D rb;
+  private int lives = 1;
+  private CapsuleCollider2D col;
 
   // Start is called before the first frame update
   void Start()
@@ -62,6 +71,7 @@ public class EnemyAI : MonoBehaviour
     target = GameObject.FindGameObjectWithTag("Player").transform;
     seeker = GetComponent<Seeker>();
     rb = GetComponent<Rigidbody2D>();
+    col = GetComponent<CapsuleCollider2D>();
     speedTemp = speed;
     if (!isAFlyer)
     {
@@ -73,7 +83,6 @@ public class EnemyAI : MonoBehaviour
 
   private void Update()
   {
-    Debug.Log(WallAhead());
     // Cooldown for enemy jump
     if (!canJump && jumpEnabled)
     {
@@ -102,6 +111,31 @@ public class EnemyAI : MonoBehaviour
         }
       }
     }
+
+    if(isAFlyer)
+    {
+      if (rangedAttacker)
+      {
+        if (!canFire)
+        {
+          fireTimer += Time.deltaTime;
+          if (fireTimer >= fireRate)
+          {
+            canFire = true;
+            fireTimer = 0f;
+          }
+        }
+      }
+    }   
+
+    if(lives == 0)
+    {
+      anim.SetBool("isDead", true);
+      rb.velocity = Vector2.zero;
+      col.enabled = false;
+      Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
+    }
+    anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
 
     CheckIfGrounded();
   }
@@ -145,15 +179,14 @@ public class EnemyAI : MonoBehaviour
       {
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         canJump = false;
-      }
-      else if (NoGroundAhead())
+      } else if (!NoGroundAhead())
       {
-        if(direction.y > 0)
-        {
+        //if (direction.y > jumpHeightLimit)
+        //{
           // There is no ground ahead so jump over
           rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
           canJump = false;
-        }
+        //}
       }
     }
 
@@ -179,7 +212,7 @@ public class EnemyAI : MonoBehaviour
 
   void UpdatePath()
   {
-    if(followEnabled && TargetInDistance() && seeker.IsDone())
+    if(TargetInDistance() && seeker.IsDone())
     {
       seeker.StartPath(rb.position, target.position, OnPathComplete);
     }
@@ -187,7 +220,8 @@ public class EnemyAI : MonoBehaviour
 
   void CheckIfGrounded()
   {
-    isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+    //isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+    isGrounded = col.IsTouchingLayers(whatIsGround);
   }
 
   bool TargetInDistance()
@@ -204,27 +238,62 @@ public class EnemyAI : MonoBehaviour
 
       if(rangedAttacker)
       {
-        if(TargetInAttackRange())
-        {
+        if(HasLineOfSight())
+        { 
           // Stop moving when in attack range
-          // dont know how to stop a path so just make speed 0
+          // dont know how to stop a path so just make speed 0  
           speed = 0;
           rb.velocity = Vector2.zero;
+          if(canFire && lives != 0)
+          {
+            anim.SetBool("enemyInRange", true);
+            GameObject temp = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+            canFire = false;
+          }
+          
         } else
         {
+          anim.SetBool("enemyInRange", false);
           speed = speedTemp;
         }
-        
       }
     } else
     {
+      if(anim.GetBool("enemyInRange"))
+      {
+        speed = 0;
+        rb.velocity = Vector2.zero;
+      } else
+      {
+        speed = speedTemp;
+      }
       rb.AddForce(new Vector2(direction.x, 0) * speed * Time.fixedDeltaTime);
     }
   }
 
-  bool TargetInAttackRange()
+  bool TargetInAttackRange(float range)
   {
-    return Vector2.Distance(transform.position, target.transform.position) < attackRange;
+    return Vector2.Distance(transform.position, target.transform.position) <= range;
+  }
+
+  bool HasLineOfSight()
+  {
+    Vector2 dir = (target.position - transform.position).normalized;
+    RaycastHit2D hitInfo = Physics2D.Raycast(transform.position, dir, attackRange, layers);
+
+    if(hitInfo.collider != null)
+    {
+      if (hitInfo.collider.tag == "Player")
+      {
+        return true;
+      } else
+      {
+        return false;
+      }
+    } else
+    {
+      return false;
+    }  
   }
 
   bool NoGroundAhead()
@@ -233,14 +302,26 @@ public class EnemyAI : MonoBehaviour
     RaycastHit2D rightInfo = Physics2D.Raycast(rightCheck.transform.position, -Vector2.up, raycastDist);
 
     // hit nothing aka a hole
-    if (leftInfo.collider == null || rightInfo.collider == null)
+    if(isGrounded)
     {
-      return true;
+      if (IsFacingRight())
+      {
+        if (rightInfo.collider != null)
+        {
+          return true;
+        }
+      } else
+      {
+        if (leftInfo.collider != null)
+        {
+          return true;
+        }
+      }
     }
     return false;
   }
 
-  bool WallAhead()
+  bool CheckAhead()
   {
     RaycastHit2D leftInfo = Physics2D.Raycast(leftCheck.transform.position, Vector2.left, raycastDist);
     RaycastHit2D rightInfo = Physics2D.Raycast(rightCheck.transform.position, Vector2.right, raycastDist);
@@ -257,8 +338,9 @@ public class EnemyAI : MonoBehaviour
       if(leftInfo.collider != null)
       {
         return true;
-      }
+      }   
     }
+
     return false;
   }
 
@@ -269,12 +351,12 @@ public class EnemyAI : MonoBehaviour
       // Wander for walkers
       // Move left until they hit a wall
       // Then turn around and keep moving
-      if (NoGroundAhead() && canJump && jumpEnabled && isGrounded)
+      if (!NoGroundAhead() && canJump && isGrounded)
       {
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         canJump = false;
       }
-      if (WallAhead())
+      if (CheckAhead())
       {
         if(IsFacingRight())
         {
@@ -302,17 +384,21 @@ public class EnemyAI : MonoBehaviour
   bool IsFacingRight()
   {
     // check if x scale is positive for facing right
-    return enemyGFX.GetComponent<SpriteRenderer>().flipX;
+    return enemyGFX.GetComponent<SpriteRenderer>().flipX == true ? false:true;
   }
 
   void FlipSprite()
   {
-    if(rb.velocity.x >= Mathf.Epsilon)
-    {
-      enemyGFX.GetComponent<SpriteRenderer>().flipX = true;
-    } else if(rb.velocity.x <= -Mathf.Epsilon)
+    if(rb.velocity.x > Mathf.Epsilon)
     {
       enemyGFX.GetComponent<SpriteRenderer>().flipX = false;
+    } else if(rb.velocity.x < -Mathf.Epsilon)
+    {
+      enemyGFX.GetComponent<SpriteRenderer>().flipX = true;
     }
+  }
+  public void SubtractHealth()
+  {
+    lives--;
   }
 }

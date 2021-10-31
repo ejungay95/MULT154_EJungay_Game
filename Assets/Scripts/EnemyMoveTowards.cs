@@ -6,8 +6,8 @@ public class EnemyMoveTowards : MonoBehaviour
 {
   public Transform target;
   public float speed = 10f;
+  public Animator anim;
 
-  private float followRange;
   private Vector2 movement;
 
   private Rigidbody2D rb;
@@ -16,30 +16,36 @@ public class EnemyMoveTowards : MonoBehaviour
   {
     target = GameObject.FindGameObjectWithTag("Player").transform;
     rb = GetComponent<Rigidbody2D>();
-  }
 
-  // Update is called once per frame
-  void Update()
-  {
     Vector3 dir = target.position - transform.position;
-
-    followRange = Vector2.Distance(target.position, transform.position);
-
 
     dir.Normalize();
     movement = dir;
   }
 
+  // Update is called once per frame
+  void Update()
+  {
+    
+  }
+
   private void FixedUpdate()
   {
-    if (followRange < 25f)
-    {
-      MoveTowardsPlayer(movement);
-    }
+    MoveTowardsPlayer(movement);
   }
 
   private void MoveTowardsPlayer(Vector2 direction)
   {
     rb.MovePosition((Vector2)transform.position + (direction * speed * Time.fixedDeltaTime));
+  }
+
+  private void OnCollisionEnter2D(Collision2D collision)
+  {
+    if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Projectile")
+    {
+      Physics2D.IgnoreCollision(collision.gameObject.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+    }
+    anim.SetTrigger("hitSomething");
+    Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
   }
 }

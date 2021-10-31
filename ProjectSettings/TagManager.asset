@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - Fall Through
   - Enemy
+  - Projectile
   layers:
   - Default
   - TransparentFX
@@ -14,10 +15,10 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Platform
+  - Enemy
+  - Projectile
   - 
   - 
   - 

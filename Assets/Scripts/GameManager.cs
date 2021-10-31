@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     if(!player.isAlive)
     {
       gameOverPanel.SetActive(true);
+      player.enabled = false;
     }
 
     if(Input.GetKeyDown(KeyCode.Escape))

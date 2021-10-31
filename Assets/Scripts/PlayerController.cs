@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
   public bool isInvulnerable = false;
   public float invulnerabilityTimeInSeconds = .5f;
   public bool isCoroutineRunning = false;
+  public Animator anim;
+  public Transform shockwaveSpawnLocation;
+  public GameObject shockwavePrefab;
 
   public AudioClip jumpClip;
   public AudioSource audioSource;
@@ -30,6 +33,7 @@ public class PlayerController : MonoBehaviour
   public bool fallThrough = false;
   public float fallMultiplier = 2.5f;
   public float lowJumpMultiplier = 2f;
+  public float terminalVel = -45f;
   public int jumpCount = MAX_JUMP_COUNT;
   public LayerMask whatIsGround;
   public Transform groundCheck;
@@ -37,35 +41,36 @@ public class PlayerController : MonoBehaviour
   public BoxCollider2D hitBox;
 
   private Rigidbody2D rb;
-  private BoxCollider2D col;
+  private CapsuleCollider2D col;
   private float horzInput;
   private Vector2 direction;
   private Vector3 mouseDirection;
-  private SpriteRenderer sprite;
+  public SpriteRenderer sprite;
 
   // Start is called before the first frame update
   void Start()
   {
     rb = GetComponent<Rigidbody2D>();
-    col = GetComponent<BoxCollider2D>();
-    sprite = GetComponent<SpriteRenderer>();
+    col = GetComponent<CapsuleCollider2D>();
     currentHealth = MAX_HEALTH;
   }
 
   private void Update()
   {
+
     horzInput = Input.GetAxis("Horizontal");
     jumpHeld = Input.GetButton("Jump");
     GetMouseLocation();
 
     direction = new Vector2(horzInput, rb.velocity.y);
+    anim.SetFloat("Speed",Mathf.Abs(horzInput));
 
     // jump code is really janky but works ¯\_("/)_/¯
-    if(!Input.GetKey(KeyCode.S))
+    if (!Input.GetKey(KeyCode.S))
     {
       if (isGrounded)
       {
-        if (Input.GetButtonDown("Jump") || Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Jump"))
         {
           jumpPressed = true;
           extraJump = true;
@@ -80,11 +85,14 @@ public class PlayerController : MonoBehaviour
           {
             jumpPressed = false;
             extraJump = false;
-            jumpCount = 0;
+            jumpCount = 0;    
           } else
           {
             jumpPressed = true;
             audioSource.PlayOneShot(jumpClip);
+            ParticleSystem temp = Instantiate(shockwavePrefab, shockwaveSpawnLocation.position, shockwaveSpawnLocation.rotation).GetComponent<ParticleSystem>();
+            temp.Play();
+            Destroy(temp.gameObject, temp.main.duration + 1.0f);
           }
         }
       }
@@ -98,7 +106,10 @@ public class PlayerController : MonoBehaviour
         fallThrough = false;
       }
     }
+
     RefreshJumps();
+    DetermineAnimationState();
+    FlipSprite();
   }
 
   // Update is called once per frame
@@ -146,6 +157,12 @@ public class PlayerController : MonoBehaviour
     {
       rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
     }
+
+    // limit terminal velocity
+    if(rb.velocity.y <= terminalVel)
+    {
+      rb.velocity = new Vector2(rb.velocity.x, terminalVel);
+    }
   }
 
   private void OnCollisionStay2D(Collision2D collision)
@@ -153,7 +170,7 @@ public class PlayerController : MonoBehaviour
     if (collision.gameObject.CompareTag("Fall Through") && fallThrough)
     {
       FallThroughPlatform();
-      Invoke("FallThroughPlatform", .25f);
+      Invoke("FallThroughPlatform", .5f);
     }
   }
 
@@ -190,7 +207,8 @@ public class PlayerController : MonoBehaviour
 
   private void CheckIfGrounded()
   {
-    isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+    //isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+    isGrounded = col.IsTouchingLayers(whatIsGround);
   }
 
   private void RefreshJumps()
@@ -199,7 +217,7 @@ public class PlayerController : MonoBehaviour
     {
       // Reset jump flags
       // --- Added condition of only checking when falling
-      if(rb.velocity.y < 0.2f)
+     if(rb.velocity.y < Mathf.Epsilon)
       {
         if(firstJump)
         {
@@ -224,6 +242,17 @@ public class PlayerController : MonoBehaviour
     hitBox.enabled = !hitBox.enabled;
   }
 
+  private void FlipSprite()
+  {
+    if(horzInput > 0)
+    {
+      sprite.flipX = false;
+    } else if(horzInput < 0)
+    {
+      sprite.flipX = true;
+    }
+  }
+
   public void PlayerTakeDamage()
   {
     if (!isInvulnerable && currentHealth > 0)
@@ -232,11 +261,11 @@ public class PlayerController : MonoBehaviour
       hearts[currentHealth].enabled = false;
     }
     
-    Debug.Log("currentHealth: " + currentHealth);
     if(currentHealth <= 0)
     {
       currentHealth = 0;
       isAlive = false;
+      anim.SetBool("isDead", true);
       return;
     }
 
@@ -266,5 +295,39 @@ public class PlayerController : MonoBehaviour
     sprite.color = Color.white;
     isInvulnerable = false;
     isCoroutineRunning = false;
+  }
+
+  void DetermineAnimationState()
+  {
+    if(rb.velocity.y > Mathf.Epsilon)
+    {
+      if(!isGrounded)
+      {
+        anim.SetBool("isJumping", true);
+        anim.SetBool("isAttackJump", true);
+      }
+      else
+      {
+        anim.SetBool("isJumping", false);
+        anim.SetBool("isAttackJump", false);
+      }
+    }
+    else if(rb.velocity.y < Mathf.Epsilon)
+    {
+      anim.SetBool("isJumping", false);
+      anim.SetBool("isAttackJump", false);
+      if(!isGrounded)
+      {
+        anim.SetBool("isFalling", true);
+      } else
+      {
+        anim.SetBool("isFalling", false);
+      }
+      
+    }
+    else if(rb.velocity.y == 0)
+    {
+      anim.SetBool("isFalling", false);
+    }
   }
 }
