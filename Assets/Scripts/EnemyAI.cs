@@ -6,14 +6,17 @@ using Pathfinding;
 public class EnemyAI : MonoBehaviour
 {
   public Transform target;
-  //public Transform enemyGFX;
+  private PlayerController player;
   public GameObject leftCheck;
   public GameObject rightCheck;
   public GameObject enemyGFX;
   public GameObject projectilePrefab;
   public Animator anim;
+  public ScoreManager scoreManager;
   public float speed = 200f;
   public LayerMask layers;
+
+  public int score = 10;
 
   float speedTemp;
 
@@ -64,14 +67,17 @@ public class EnemyAI : MonoBehaviour
   private Rigidbody2D rb;
   private int lives = 1;
   private CapsuleCollider2D col;
+  private bool canAddScore = false;
 
   // Start is called before the first frame update
   void Start()
   {
-    target = GameObject.FindGameObjectWithTag("Player").transform;
+    player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+    target = player.transform;
     seeker = GetComponent<Seeker>();
     rb = GetComponent<Rigidbody2D>();
     col = GetComponent<CapsuleCollider2D>();
+    scoreManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<ScoreManager>();
     speedTemp = speed;
     if (!isAFlyer)
     {
@@ -128,13 +134,20 @@ public class EnemyAI : MonoBehaviour
       }
     }   
 
-    if(lives == 0)
+    if(IsDead())
     {
+      if(canAddScore)
+      {
+        scoreManager.AddScore(score);
+        player.AddExtraJumpOnKill();
+        canAddScore = false;
+      }
       anim.SetBool("isDead", true);
       rb.velocity = Vector2.zero;
       col.enabled = false;
       Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
     }
+
     anim.SetFloat("Speed", Mathf.Abs(rb.velocity.x));
 
     CheckIfGrounded();
@@ -400,5 +413,21 @@ public class EnemyAI : MonoBehaviour
   public void SubtractHealth()
   {
     lives--;
+
+    if(IsDead())
+    {
+      canAddScore = true;
+    }
+  }
+
+  private bool IsDead()
+  {
+    if(lives == 0)
+    {
+      return true;
+    } else
+    {
+      return false;
+    }
   }
 }

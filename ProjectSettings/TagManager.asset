@@ -8,6 +8,7 @@ TagManager:
   - Fall Through
   - Enemy
   - Projectile
+  - GameManager
   layers:
   - Default
   - TransparentFX

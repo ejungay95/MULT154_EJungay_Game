@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
   public Animator anim;
   public Transform shockwaveSpawnLocation;
   public GameObject shockwavePrefab;
+  public ScoreManager scoreManager;
 
   public AudioClip jumpClip;
   public AudioSource audioSource;
@@ -70,6 +71,7 @@ public class PlayerController : MonoBehaviour
     {
       if (isGrounded)
       {
+        scoreManager.ResetMultiplier();
         if (Input.GetButtonDown("Jump"))
         {
           jumpPressed = true;
@@ -328,6 +330,14 @@ public class PlayerController : MonoBehaviour
     else if(rb.velocity.y == 0)
     {
       anim.SetBool("isFalling", false);
+    }
+  }
+  
+  public void AddExtraJumpOnKill()
+  {
+    if(jumpCount < MAX_JUMP_COUNT)
+    {
+      jumpCount += 1;
     }
   }
 }

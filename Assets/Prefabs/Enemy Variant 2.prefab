@@ -27,6 +27,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -7648264230842334957, guid: d4dd042091214d74794040eddcec864a, type: 3}
+      propertyPath: score
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: -7648264230842334957, guid: d4dd042091214d74794040eddcec864a, type: 3}
       propertyPath: enemyGFX
       value: 
       objectReference: {fileID: 7764401950802782060}

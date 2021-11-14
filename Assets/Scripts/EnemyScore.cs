@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Attack : MonoBehaviour
+public class EnemyScore : MonoBehaviour
 {
+  public int points = 10;
+
+
   // Start is called before the first frame update
   void Start()
   {
@@ -16,11 +19,13 @@ public class Attack : MonoBehaviour
         
   }
 
-  private void OnTriggerEnter2D(Collider2D collision)
+  public void AddToScore()
   {
-    if(collision.gameObject.CompareTag("Enemy"))
-    {
-      collision.gameObject.GetComponent<EnemyAI>().SubtractHealth();
-    }
+
+  }
+
+  private void OnDestroy()
+  {
+    
   }
 }
