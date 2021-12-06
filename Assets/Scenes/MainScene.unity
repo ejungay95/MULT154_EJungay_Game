@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3665,7 +3665,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &296588080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3719,7 +3719,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &310497044
 GameObject:
@@ -5593,7 +5593,7 @@ GameObject:
   - component: {fileID: 438306757}
   - component: {fileID: 438306759}
   - component: {fileID: 438306758}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: SET1_background_obj_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6200,7 +6200,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 189b3fd57ba0d7d43aba3f164bf63412, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.17
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -10614,7 +10614,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &921550899
 Light:
   m_ObjectHideFlags: 0
@@ -11629,7 +11629,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1206407984}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.44, y: -7.56, z: 0}
+  m_LocalPosition: {x: -14.71, y: -8.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -12165,7 +12165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1406527173}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.63, y: -7.86, z: 0}
+  m_LocalPosition: {x: 13.37, y: -8.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -14328,16 +14328,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3eef6c7ecda590448d3132c3f0b2f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color1: {r: 0.99831563, g: 1, b: 0.82547176, a: 0.019607844}
-  color2: {r: 1, g: 0.9857728, b: 0.44811314, a: 0.13333334}
-  speed: 0.5
+  color1: {r: 0.99831563, g: 1, b: 0.82547176, a: 0.09019608}
+  color2: {r: 1, g: 0.9857728, b: 0.44811314, a: 0.05882353}
+  speed: 0.24
   size: 22.1
-  skew: 0.5
+  skew: -0.05
   shear: 2.53
   fade: 1
   contrast: 1.6
   sortingLayer: 0
-  orderInLayer: -2
+  orderInLayer: -3
 --- !u!23 &1477174393
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14377,7 +14377,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: -3
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1477174394
 MeshFilter:
@@ -14399,7 +14399,7 @@ Transform:
   m_LocalScale: {x: 28, y: 28, z: 28}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1485888340
 GameObject:
@@ -15603,7 +15603,7 @@ GameObject:
   - component: {fileID: 1651527600}
   - component: {fileID: 1651527603}
   - component: {fileID: 1651527602}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: SET1_background_obj_22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16706,7 +16706,7 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: db4e088d35a19f44a8d1a893f1e63bb8, type: 2}
@@ -16786,8 +16786,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3eef6c7ecda590448d3132c3f0b2f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color1: {r: 0.9983157, g: 1, b: 0.8254717, a: 0.09019608}
-  color2: {r: 1, g: 0.9857728, b: 0.4481132, a: 0.05882353}
+  color1: {r: 0.99831563, g: 1, b: 0.82547176, a: 0.09019608}
+  color2: {r: 1, g: 0.9857728, b: 0.44811314, a: 0.05882353}
   speed: 0.24
   size: 22.1
   skew: -0.05
@@ -16795,7 +16795,7 @@ MonoBehaviour:
   fade: 1
   contrast: 1.6
   sortingLayer: 0
-  orderInLayer: -2
+  orderInLayer: -3
 --- !u!23 &1796113067
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16835,7 +16835,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -2
+  m_SortingOrder: -3
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1796113068
 MeshFilter:
@@ -20791,7 +20791,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkForPlayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   checkRadius: 3.5
   waves:
   - enemyTypes:

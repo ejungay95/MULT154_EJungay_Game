@@ -44,7 +44,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7648264230842334957, guid: d4dd042091214d74794040eddcec864a, type: 3}
       propertyPath: attackRange
-      value: 10
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: -7648264230842334957, guid: d4dd042091214d74794040eddcec864a, type: 3}
       propertyPath: jumpEnabled
