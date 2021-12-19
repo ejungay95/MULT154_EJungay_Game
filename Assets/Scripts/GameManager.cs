@@ -12,19 +12,21 @@ public class GameManager : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-        
+    
   }
 
   // Update is called once per frame
   void Update()
   {
-    if(!player.isAlive)
+    if(gameOverPanel != null && player != null)
     {
-      gameOverPanel.SetActive(true);
-      player.enabled = false;
+      if(!player.isAlive)
+      {
+        gameOverPanel.SetActive(true);
+        player.enabled = false;
+      }
     }
-
-    if(Input.GetKeyDown(KeyCode.Escape))
+    if (Input.GetKeyDown(KeyCode.Escape))
     {
       Application.Quit();
     }

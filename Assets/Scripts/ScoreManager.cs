@@ -5,6 +5,7 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+  GameData gameData;
   public TextMeshProUGUI scoreText;
 
   private int totalScore = 0;
@@ -13,13 +14,17 @@ public class ScoreManager : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-        
+    gameData = GameObject.FindGameObjectWithTag("GameData").GetComponent<GameData>();
   }
 
   // Update is called once per frame
   void Update()
   {
-    scoreText.text = "Score: " + totalScore.ToString(); 
+    if(scoreText != null)
+    {
+      scoreText.text = "Score: " + totalScore.ToString();
+    }
+    gameData.SetTotalScore(totalScore);
   }
 
   public void AddScore(int score)
